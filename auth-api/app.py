@@ -2,9 +2,12 @@ from flask import Flask
 from flask import request, Response, jsonify
 from functools import wraps
 from redis import Redis
+from secrets import token_urlsafe
 
-from user_administration import check_auth
+from user_administration import check_auth, get_redis_user
 from authentication_error import AuthenticationError
+from dtu_user import DtuUser
+from inside import Inside
 
 import sys
 
@@ -13,23 +16,28 @@ redis = Redis(host="redis", port=6379)
 
 @app.route("/")
 def hello():
-    redis.incr("hits")
-    return f"This Compose/Flask demo has been viewed {int(redis.get('hits'))} times."
+    return jsonify(message="This is DTU Compute Discord API", source="https://github.com/dtuswt/cn-discord-bot")
 
-@app.route("/test")
-def test():
-    return "Hello, World!!!"
+@app.route("/user/<discord_id>")
+def get_user(discord_id):
+    username, password = get_redis_user(redis, discord_id)
+    if username == None:
+        return jsonify(message="User not found"), 404
+    return jsonify(username=username, password=password, discord_id=discord_id)
 
-# def auth(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         authorization = request.authorization
-#         # if not authorization or not check_auth(authorization.username, authorization.password):
-#         try:
-#             authenticate()
-#         except AuthenticationError:
-#             return Response('Could not verify user credentials.', 401, {'WWW-Authenticate':'Basic realm="Login Required"'})
-#         return decorated
+@app.route("/user/<discord_id>/info")
+def getstuff(discord_id):
+    username, password = get_redis_user(redis, discord_id)
+
+    if username == None:
+        return jsonify(message=f"User '{discord_id}' could not be found."), 404
+
+    user = DtuUser(username, None, password)
+    inside = Inside(user)
+
+    userinfo = inside.get_user_info()
+
+    return userinfo
 
 @app.route("/login/<discord_id>", methods=['POST', 'DELETE'])
 def connect(discord_id):
@@ -40,19 +48,16 @@ def connect(discord_id):
     redis_user = redis.hgetall(discord_id)
 
     if redis_user != {}:
-        # redis.delete(discord_id)
         username = redis_user[b'username'].decode()
         password = redis_user[b'password'].decode()
+        token = redis_user[b'token'].decode()
 
         if password == "None":
             set_user(discord_id)
-            # return jsonify(message=f"A password has been set for user {discord_id}")
-            return jsonify(discord_id=discord_id, username=username, password=password), 204
-        return jsonify(discord_id=discord_id, username=username, password=password)
+            return jsonify(discord_id=discord_id, username=username, password=password, token=token), 204
+        return jsonify(discord_id=discord_id, username=username, password=password, token=token)
     else:
         return set_user(discord_id)
-        # return Response("User created", 201)
-    # return f"User was not found, has been set now."
     
 def set_user(discord_id):
     username = request.values.get('username')
@@ -64,19 +69,12 @@ def set_user(discord_id):
     if password == False:
         return auth_error()
 
-    redis.hmset(discord_id, {'username': username, 'password': password})
-    return jsonify(discord_id=discord_id, username=username, password=password), 201
+    token = token_urlsafe(32)
+    redis.hmset(discord_id, {'username': username, 'password': password, 'token': token})
+    return jsonify(discord_id=discord_id, username=username, password=password, token=token), 201
 
 def auth_error():
-    # return Response(jsonify({'message': 'Could not verify user credentials.'}), 401, {'WWW-Authenticate':'Basic realm="Login Required"'})
     return jsonify(message='Could not verify user credentials.'), 401
-
-# def check_auth(username, password):
-#     try:
-#         authenticate(username, password)
-#     except AuthenticationError:
-#         return False    
-#     return True
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

@@ -12,3 +12,9 @@ def check_auth(username, password):
     except AuthenticationError:
         return False
     return user.secure_password
+
+def get_redis_user(redis, discord_id):
+    redis_user = redis.hgetall(discord_id)
+    if redis_user == {}:
+        return None, None
+    return redis_user[b'username'].decode(), redis_user[b'password'].decode()
