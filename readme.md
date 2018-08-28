@@ -52,3 +52,7 @@ to stop the project.
 The command will start the python api, discord bot and a redis database.
 
 **Important:** You will probably get an error with the discord bot. Read the readme.md in [discord-bot](https://github.com/dtuswt/cn-discord-bot/tree/master/discord-bot) to see how to run the bot.
+
+## License
+
+The project is licensed under the [MIT License](https://github.com/dtuswt/cn-discord-bot/tree/master/LICENSE).
