@@ -17,7 +17,7 @@ For now though, I'll try only saving the token.
 To develop on the project, you shuld use a virtual environment, and Python 3.6. To set up the virtual environment, and install all the dependencies, simply run:
 
 ```bash
-virtualenv -p python3.6 venv
+virtualenv -p python3.6 venv-api
 source venv/bin/activate
 pip install -r requirements.txt
 ```
