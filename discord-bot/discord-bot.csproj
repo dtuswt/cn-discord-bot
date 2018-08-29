@@ -6,4 +6,8 @@
     <RootNamespace>discord_bot</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="discord.net" Version="1.0.2" />
+  </ItemGroup>
+
 </Project>
