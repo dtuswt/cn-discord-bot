@@ -11,8 +11,8 @@ services:
   redis:
     image: redis
   bot:
-    build: ./discord-bot
+    build: ./discord-bot-python
     volumes:
-      - ./discord-bot:/code
+      - ./discord-bot-python:/code
     depends_on:
       - api
