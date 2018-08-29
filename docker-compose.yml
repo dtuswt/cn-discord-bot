@@ -10,3 +10,9 @@ services:
       - redis
   redis:
     image: redis
+  bot:
+    build: ./discord-bot
+    volumes:
+      - ./discord-bot:/code
+    depends_on:
+      - api

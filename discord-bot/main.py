@@ -3,6 +3,7 @@ from discord.ext.commands import Bot
 from discord.ext import commands
 from pathlib import Path
 import sys, signal
+import api
 
 discord_client = discord.Client()
 bot_prefix="/"
@@ -49,9 +50,32 @@ async def connect(ctx, args):
         if studyno == None:
             await client.say(f"The given study number ({args[0]}) is invalid. Try agian.")
             return
-        await client.say(f"Using study number '{studyno}' and username {ctx.message.author}.'")
+        user = api.get_user(author)
+
+        if user == None:
+            link = api.get_or_create(author)
+            await client.say(f"User not found. Access {link} to authorize your account.")
+        else:
+            await client.say("Was already created.")
     elif len(args) == 0:
-        await client.say(f"Will connect you to the server with username: {ctx.message.author}.")
+        # await client.say(f"Will connect you to the server with username: {ctx.message.author}.")
+        connect_user()
+
+async def connect_user(ctx, username = None):
+    author = ctx.message.author
+    await client.say(author)
+    if username == None:
+        await client.say(f"Will connect you to the server with username: {author}.")
+    else:
+        await client.say(f"Using study number '{studyno}' and username {author}.'")
+
+    user = api.get_user(author)
+
+    if user == None:
+        link = api.get_or_create(author)
+        await client.say(f"User not found. Access {link} to authorize your account.")
+    else:
+        await client.say("Was already created.")
 
 def get_study_no(s):
     if len(s) == 7 and s[1:].isdigit():
