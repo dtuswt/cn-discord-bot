@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>discord_bot</RootNamespace>
+    <UserSecretsId>ffb14fe3-6c37-480d-ac56-627592dbb13e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
