@@ -37,7 +37,8 @@ def getstuff(discord_id):
 
     userinfo = inside.get_user_info()
 
-    return userinfo
+    # return userinfo
+    return jsonify(userinfo)
 
 @app.route("/login/<discord_id>", methods=['POST', 'DELETE'])
 def connect(discord_id):

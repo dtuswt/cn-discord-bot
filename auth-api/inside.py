@@ -2,9 +2,9 @@ from dtu_user import DtuUser
 from authentication_error import AuthenticationError
 import requests, xmltodict
 
+API_URL = "https://cn.inside.dtu.dk/data"
+API_HEADERS = {'X-appname': 'Unofficial DTU Compute Community', 'X-token': '29c27bfe-8c88-4afe-b7e6-b691ffd316d5', 'Accept': 'application/xml'}
 class Inside:
-    API_URL = "https://cn.inside.dtu.dk"
-    API_HEADERS = {'X-appname': 'Unofficial DTU Compute Community', 'X-token': '29c27bfe-8c88-4afe-b7e6-b691ffd316d5'}
 
     def __init__(self, user: DtuUser):
         self.user = user
@@ -33,9 +33,10 @@ class Inside:
                     raise AuthenticationError("Wrong user credentials", None)
                 return
     
-    def get_user_info():
+    def get_user_info(self):
         with requests.Session() as s:
             s.headers.update(API_HEADERS)
-            return "hej"
-            res = s.get(f"{API_URL}/CurrentUser/UserInfo", auth=(user.study_id, user.secure_password))
-            return res.text
+            # return "hej"
+            res = s.get(f"{API_URL}/CurrentUser/UserInfo", auth=(self.user.study_id, self.user.secure_password))
+            # return res.text
+            return xmltodict.parse(res.text)["User"]
